@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>隊伍與英雄選擇</title>
+    <script>
+        async function fetchTeams() {
+            const response = await fetch('http://127.0.0.1:5000/teams');
+            return await response.json();
+        }
+
+        async function fetchChampions() {
+            const response = await fetch('http://127.0.0.1:5000/champions');
+            return await response.json();
+        }
+
+        async function init() {
+            const teams = await fetchTeams();
+            const champions = await fetchChampions();
+            
+            const teamSelects = document.querySelectorAll('.team-select');
+            teamSelects.forEach(select => {
+                for (const team in teams) {
+                    let option = document.createElement('option');
+                    option.value = team;
+                    option.textContent = team;
+                    select.appendChild(option);
+                }
+                select.addEventListener('change', (event) => {
+                    const teamName = event.target.value;
+                    const side = event.target.dataset.side;
+                    fillPlayers(side, teams[teamName], champions);
+                });
+            });
+        }
+
+        function fillPlayers(side, players, champions) {
+            ['TOP', 'JUNGLE', 'MID', 'AD', 'SUPPORT'].forEach(role => {
+                document.getElementById(`${side}-${role}`).textContent = players[role] || '';
+                updateChampionOptions(side, role, champions);
+            });
+        }
+
+        function updateChampionOptions(side, role, champions) {
+            const roleMap = { 'TOP': 'TOP', 'JUNGLE': 'JUNGLE', 'MID': 'MID', 'AD': 'AD', 'SUPPORT': 'SUPPORT' };
+            const championSelect = document.getElementById(`${side}-${role}-champion`);
+            championSelect.innerHTML = '<option value="">選擇英雄</option>';
+            champions[roleMap[role]].forEach(champ => {
+                let option = document.createElement('option');
+                option.value = champ;
+                option.textContent = champ;
+                championSelect.appendChild(option);
+            });
+        }
+
+        window.onload = init;
+    </script>
+</head>
+<body>
+    <h1>隊伍與英雄選擇</h1>
+    <div class="team-container">
+        <div class="team">
+            <h2>紅色方</h2>
+            <select class="team-select" data-side="teamA">
+                <option value="">請選擇隊伍</option>
+            </select>
+            <ul>
+                <li>上路: <span id="teamA-TOP"></span> <select id="teamA-TOP-champion"><option value="">選擇英雄</option></select></li>
+                <li>打野: <span id="teamA-JUNGLE"></span> <select id="teamA-JUNGLE-champion"><option value="">選擇英雄</option></select></li>
+                <li>中路: <span id="teamA-MID"></span> <select id="teamA-MID-champion"><option value="">選擇英雄</option></select></li>
+                <li>下路: <span id="teamA-AD"></span> <select id="teamA-AD-champion"><option value="">選擇英雄</option></select></li>
+                <li>輔助: <span id="teamA-SUPPORT"></span> <select id="teamA-SUPPORT-champion"><option value="">選擇英雄</option></select></li>
+            </ul>
+        </div>
+        <div class="team">
+            <h2>藍色方</h2>
+            <select class="team-select" data-side="teamB">
+                <option value="">請選擇隊伍</option>
+            </select>
+            <ul>
+                <li>上路: <span id="teamB-TOP"></span> <select id="teamB-TOP-champion"><option value="">選擇英雄</option></select></li>
+                <li>打野: <span id="teamB-JUNGLE"></span> <select id="teamB-JUNGLE-champion"><option value="">選擇英雄</option></select></li>
+                <li>中路: <span id="teamB-MID"></span> <select id="teamB-MID-champion"><option value="">選擇英雄</option></select></li>
+                <li>下路: <span id="teamB-AD"></span> <select id="teamB-AD-champion"><option value="">選擇英雄</option></select></li>
+                <li>輔助: <span id="teamB-SUPPORT"></span> <select id="teamB-SUPPORT-champion"><option value="">選擇英雄</option></select></li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
